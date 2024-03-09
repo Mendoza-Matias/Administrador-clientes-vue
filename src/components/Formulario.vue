@@ -44,8 +44,17 @@ const leerInformacionDelMensaje = (mensaje,index) => {
 }
 
 const enviarInformacion = () => {
-    emit('registrarCliente',inputsData);
+    const copiaDeInputsData = inputsData.map(input => ({ ...input, msg: input.msg.value })); //Creo una copia para que al llamar al metodo recetForm se transmita mi información
+    emit('registrarCliente',copiaDeInputsData);
+    recetForm()
 }
+
+const recetForm = () => {
+    inputsData.forEach(input => {
+        input.msg.value = "";
+    });
+}
+
 
 </script>
 
