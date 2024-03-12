@@ -29,7 +29,7 @@ const obtenerInformacion = (event) => {
         {{ inputData.ingresar }}
     </label>
     <input v-on:input="obtenerInformacion" :id='inputData.nombre' :type='inputData.tipo'
-        :placeholder='inputData.ingresar' class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md">
+        :placeholder='inputData.ingresar' class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md" :value="inputData.msg.value">
     <small>{{ erroInput }}</small>
 </template>
 

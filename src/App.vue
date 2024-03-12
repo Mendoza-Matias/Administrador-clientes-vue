@@ -6,7 +6,7 @@ import Formulario from './components/Formulario.vue'
 import Cliente from './components/Cliente.vue'
 
 const clientes = ref([]);
-const clienteEditado = ref()
+const clienteEditado = ref([])
 
 const recibirCliente = (cliente) => {
     cliente.id = uid()
@@ -15,7 +15,6 @@ const recibirCliente = (cliente) => {
 
 const actualizarCliente = (id) =>{
     clienteEditado.value = clientes.value.filter(cliente => cliente.id === id)[0]
-    console.log(clienteEditado.value)
 }
 
 const eliminarCliente = () => {
@@ -29,7 +28,7 @@ const eliminarCliente = () => {
         <Header />
     </div>
     <div class="mt-12 md:flex">
-        <Formulario v-on:registrarCliente="recibirCliente"/>
+        <Formulario v-on:registrarCliente="recibirCliente" :clientes="clientes" :clienteEditado="clienteEditado"/>
         <div class="md:w-1/2 md:h-screen overflow-y-scroll">
             <h3 class="font-black text-3xl text-center">Administrar a tus Clientes</h3>
             <!--Parrafo-->

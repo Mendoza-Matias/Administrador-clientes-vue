@@ -1,51 +1,54 @@
 <script setup>
 import Input from './Input.vue';
-import { ref } from 'vue';
+import { ref, watchEffect } from 'vue';
 
 const emit = defineEmits(['registrarCliente'])
+const props = defineProps(['clientes', 'clienteEditado'])
+const estaEditando = ref(false);
+
 //Escuchadores de eventos
 //  Datos para los inputs
 const inputsData = [
-    {   
+    {
         nombre: "cliente",
         ingresar: "Nombre del Cliente",
         tipo: "text",
-        msg:ref('')
+        msg: ref('')
     },
     {
         nombre: "electrodomestico",
         ingresar: "Electrodomestico Reparado",
         tipo: "text",
-        msg:ref('')
+        msg: ref('')
     },
     {
         nombre: "direccion",
         ingresar: "Direccion del Cliente",
         tipo: "text",
-        msg:ref('')
+        msg: ref('')
     },
     {
         nombre: "localidad",
         ingresar: "Localidad Del Cliente",
         tipo: "text",
-        msg:ref('')
+        msg: ref('')
     },
     {
         nombre: "fecha",
         ingresar: "Fecha de Reparación",
         tipo: "date",
-        msg:ref('')
+        msg: ref('')
     }
 ]
 
 //Funciones
-const leerInformacionDelMensaje = (mensaje,index) => {
-  inputsData[index].msg.value = mensaje;
+const leerInformacionDelMensaje = (mensaje, index) => {
+    inputsData[index].msg.value = mensaje;
 }
 
 const enviarInformacion = () => {
     const copiaDeInputsData = inputsData.map(input => ({ ...input, msg: input.msg.value })); //Creo una copia para que al llamar al metodo recetForm se transmita mi información
-    emit('registrarCliente',copiaDeInputsData);
+    emit('registrarCliente', copiaDeInputsData);
     recetForm()
 }
 
@@ -54,6 +57,16 @@ const recetForm = () => {
         input.msg.value = "";
     });
 }
+
+watchEffect(
+    () => {
+        props.clienteEditado.forEach((cliente, indice) => {
+            inputsData[indice].msg.value = cliente.msg;
+            estaEditando.value = true;
+        })
+    }
+)
+
 
 
 </script>
@@ -71,8 +84,9 @@ const recetForm = () => {
         <!--Formulario-->
         <form class="bg-white ml-5 shadow-md rounded-lg py-10 px-5 mb-10" v-on:submit.prevent="enviarInformacion">
             <!--Campos de los inputs del formulario-->
-            <div v-for="(inputData , index) in inputsData" class="mb-5">
-                <Input v-on:leer-informacion="(mensaje) => leerInformacionDelMensaje (mensaje,index)" v-bind:inputData="inputData"/>
+            <div v-for="(inputData, index) in inputsData" class="mb-5">
+                <Input v-on:leer-informacion="(mensaje) => leerInformacionDelMensaje(mensaje, index)"
+                    v-bind:inputData="inputData" />
                 <!--Componente input-->
             </div>
             <div>
