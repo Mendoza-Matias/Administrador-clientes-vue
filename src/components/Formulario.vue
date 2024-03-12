@@ -1,76 +1,65 @@
 <script setup>
-import Input from './Input.vue';
-import { ref, watchEffect } from 'vue';
+import { reactive, computed } from 'vue'
+import Alerta from './Alerta.vue'
 
-const emit = defineEmits(['registrarCliente'])
-const props = defineProps(['clientes', 'clienteEditado'])
-const estaEditando = ref(false);
-
-//Escuchadores de eventos
-//  Datos para los inputs
-const inputsData = [
-    {
-        nombre: "cliente",
-        ingresar: "Nombre del Cliente",
-        tipo: "text",
-        msg: ref('')
+const props = defineProps({
+    id: {
+        type: [String, null]
     },
-    {
-        nombre: "electrodomestico",
-        ingresar: "Electrodomestico Reparado",
-        tipo: "text",
-        msg: ref('')
+    nombre: {
+        type: String
     },
-    {
-        nombre: "direccion",
-        ingresar: "Direccion del Cliente",
-        tipo: "text",
-        msg: ref('')
+    reparacion: {
+        type: String
     },
-    {
-        nombre: "localidad",
-        ingresar: "Localidad Del Cliente",
-        tipo: "text",
-        msg: ref('')
+    direccion: {
+        type: String
     },
-    {
-        nombre: "fecha",
-        ingresar: "Fecha de Reparación",
-        tipo: "date",
-        msg: ref('')
+    localidad: {
+        type: String
+    },
+    fecha: {
+        type: String
     }
-]
+})
+
+const alerta = reactive({
+    tipo: "", /*Exito|Error*/
+    mensaje: "" /*Mensaje */
+});
+
+//Emisores
+const emit = defineEmits([
+    'update:nombre',
+    'update:reparacion',
+    'update:direccion',
+    'update:localidad',
+    'update:fecha',
+    'guardarCliente'])
 
 //Funciones
-const leerInformacionDelMensaje = (mensaje, index) => {
-    inputsData[index].msg.value = mensaje;
-}
-
 const enviarInformacion = () => {
-    const copiaDeInputsData = inputsData.map(input => ({ ...input, msg: input.msg.value })); //Creo una copia para que al llamar al metodo recetForm se transmita mi información
-    emit('registrarCliente', copiaDeInputsData);
-    recetForm()
-}
-
-const recetForm = () => {
-    inputsData.forEach(input => {
-        input.msg.value = "";
-    });
-}
-
-watchEffect(
-    () => {
-        props.clienteEditado.forEach((cliente, indice) => {
-            inputsData[indice].msg.value = cliente.msg;
-            estaEditando.value = true;
-        })
+    if (Object.values(props).includes("")) {
+        alerta.tipo = "error"
+        alerta.mensaje = "Todos los campos son obligatorios"
+        return;
     }
-)
+    emit('guardarCliente'); //Envio el evento una ves pasada la validación
+    alerta.tipo = "exito"
+    alerta.mensaje = "Información enviada"
+    setTimeout(() => {
+        Object.assign(alerta, {
+            tipo: "",
+            mensaje: ""
+        })
+    }, 3000)
+}
 
-
+const editando = computed(() => {
+    return props.id;
+})
 
 </script>
-
 <template>
     <!--HTML-->
     <div class="md:w-1/2">
@@ -81,19 +70,65 @@ watchEffect(
             <span class="text-red-600 font-bold">Adminístralo</span>
         </p>
         <!--Fin del parrafo-->
+        <!--Alerta-->
+        <div>
+            <Alerta v-if="alerta.mensaje" v-bind:alerta="alerta" />
+        </div>
         <!--Formulario-->
         <form class="bg-white ml-5 shadow-md rounded-lg py-10 px-5 mb-10" v-on:submit.prevent="enviarInformacion">
-            <!--Campos de los inputs del formulario-->
-            <div v-for="(inputData, index) in inputsData" class="mb-5">
-                <Input v-on:leer-informacion="(mensaje) => leerInformacionDelMensaje(mensaje, index)"
-                    v-bind:inputData="inputData" />
-                <!--Componente input-->
+            <!--v-on: siempre es para eventos || simplificado @submit.prevent-->
+            <!--Input-->
+            <div class="mb-5">
+                <label for="cliente" class="block text-gray-700 uppercase font-bold">
+                    Nombre
+                </label>
+                <!--v-model simplifica el (e) -> -->
+                <input v-on:input="$emit('update:nombre', $event.target.value)" id="cliente" type="text"
+                    placeholder="Nombre del cliente" class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md"
+                    :value="nombre">
+            </div>
+            <!--Input-->
+            <div class="mb-5">
+                <label for="reparacion" class="block text-gray-700 uppercase font-bold">
+                    Reparación
+                </label>
+                <input v-on:input="$emit('update:reparacion', $event.target.value)" id="reparacion" type="text"
+                    placeholder="Reparación" class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md"
+                    :value="reparacion">
+            </div>
+            <!--Input-->
+            <div class="mb-5">
+                <label for="direccion" class="block text-gray-700 uppercase font-bold">
+                    Dirección
+                </label>
+                <input v-on:input="$emit('update:direccion', $event.target.value)" id="direccion" type="text"
+                    placeholder="Dirección" class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md"
+                    :value="direccion">
+            </div>
+            <!--Input-->
+            <div class="mb-5">
+                <label for="localidad" class="block text-gray-700 uppercase font-bold">
+                    Localidad
+                </label>
+                <input v-on:input="$emit('update:localidad', $event.target.value)" id="localidad" type="text"
+                    placeholder="Localidad" class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md"
+                    :value="localidad">
+
+            </div>
+            <!--Input-->
+            <div class="mb-5">
+                <label for="fecha" class="block text-gray-700 uppercase font-bold">
+                    Fecha
+                </label>
+                <input v-on:input="$emit('update:fecha', $event.target.value)" id="fecha" type="date" :value="fecha"
+                    placeholder="Fecha" class="border-2 w-full p-2 mt-2 placeholder-gray-400 rounded-md">
             </div>
             <div>
                 <!--Input para enviar la información-->
-                <button type="submit" class="bg-red-600 p-3
+                <input type="submit" class="bg-red-600 p-3
                 text-white uppercase font-bold 
-                hover:bg-red-700 cursor-pointer transition-colors">Enviar información</button>
+                hover:bg-red-700 cursor-pointer transition-colors"
+                    :value="[editando ? 'Guardar cambios':'Enviar información']" />
             </div>
         </form>
         <!--Fin del formulario-->
